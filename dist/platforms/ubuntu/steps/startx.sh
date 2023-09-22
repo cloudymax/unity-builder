@@ -195,7 +195,7 @@ start_app(){
         # Start the desktop session
         tmux new-session -d -s "app"
         tmux send-keys -t "app" "export DISPLAY=:0 && \
-        startxfce4" ENTER
+        icewm" ENTER
 }
 
 init
