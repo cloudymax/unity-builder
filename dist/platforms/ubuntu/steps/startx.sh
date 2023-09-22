@@ -30,25 +30,25 @@ export PASSWD=mypasswd
 
 init(){
         # Start DBus without systemd
-        sudo /etc/init.d/dbus start
+        /etc/init.d/dbus start
 
         # Change time zone from environment variable
-        sudo ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" | sudo tee /etc/timezone > /dev/null
+        ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" | tee /etc/timezone > /dev/null
 
         # This symbolic link enables running Xorg inside a container with `-sharevts`
-        sudo ln -snf /dev/ptmx /dev/tty7
+        ln -snf /dev/ptmx /dev/tty7
 
         # Allow starting Xorg from a pseudoterminal instead of strictly on a tty console
         if [ ! -f /etc/X11/Xwrapper.config ]; then
-            echo -e "allowed_users=anybody\nneeds_root_rights=yes" | sudo tee /etc/X11/Xwrapper.config > /dev/null
+            echo -e "allowed_users=anybody\nneeds_root_rights=yes" | tee /etc/X11/Xwrapper.config > /dev/null
         fi
         if grep -Fxq "allowed_users=console" /etc/X11/Xwrapper.config; then
-          sudo sed -i "s/allowed_users=console/allowed_users=anybody/;$ a needs_root_rights=yes" /etc/X11/Xwrapper.config
+          sed -i "s/allowed_users=console/allowed_users=anybody/;$ a needs_root_rights=yes" /etc/X11/Xwrapper.config
         fi
 
         # Remove existing Xorg configuration
         if [ -f "/etc/X11/xorg.conf" ]; then
-          sudo rm -f "/etc/X11/xorg.conf"
+          rm -f "/etc/X11/xorg.conf"
         fi
 }
 
@@ -64,10 +64,10 @@ install_driver() {
             curl --progress-bar -fL -O "https://us.download.nvidia.com/XFree86/Linux-x86_64/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || curl --progress-bar -fL -O "https://us.download.nvidia.com/tesla/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || { echo "Failed NVIDIA GPU driver download. Exiting."; exit 1; }
           fi
           # Extract installer before installing
-          sudo sh "NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" -x
+          sh "NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" -x
           cd "NVIDIA-Linux-x86_64-$DRIVER_VERSION"
           # Run installation without the kernel modules and host components
-          sudo ./nvidia-installer --silent \
+          ./nvidia-installer --silent \
                             --no-kernel-module \
                             --install-compat32-libs \
                             --no-nouveau-check \
@@ -75,21 +75,21 @@ install_driver() {
                             --no-rpms \
                             --no-backup \
                             --no-check-for-alternate-installs || true
-          sudo rm -rf /tmp/NVIDIA* && cd ~
+          rm -rf /tmp/NVIDIA* && cd ~
         fi
 }
 
 find_gpu(){
         # Get first GPU device if all devices are available or `NVIDIA_VISIBLE_DEVICES` is not set
         if [ "$NVIDIA_VISIBLE_DEVICES" == "all" ]; then
-          export GPU_SELECT=$(sudo nvidia-smi --query-gpu=uuid --format=csv | sed -n 2p)
+          export GPU_SELECT=$(nvidia-smi --query-gpu=uuid --format=csv | sed -n 2p)
         elif [ -z "$NVIDIA_VISIBLE_DEVICES" ]; then
-          export GPU_SELECT=$(sudo nvidia-smi --query-gpu=uuid --format=csv | sed -n 2p)
+          export GPU_SELECT=$(nvidia-smi --query-gpu=uuid --format=csv | sed -n 2p)
         # Get first GPU device out of the visible devices in other situations
         else
-          export GPU_SELECT=$(sudo nvidia-smi --id=$(echo "$NVIDIA_VISIBLE_DEVICES" | cut -d ',' -f1) --query-gpu=uuid --format=csv | sed -n 2p)
+          export GPU_SELECT=$(nvidia-smi --id=$(echo "$NVIDIA_VISIBLE_DEVICES" | cut -d ',' -f1) --query-gpu=uuid --format=csv | sed -n 2p)
           if [ -z "$GPU_SELECT" ]; then
-            export GPU_SELECT=$(sudo nvidia-smi --query-gpu=uuid --format=csv | sed -n 2p)
+            export GPU_SELECT=$(nvidia-smi --query-gpu=uuid --format=csv | sed -n 2p)
           fi
         fi
 
@@ -113,7 +113,7 @@ create_xorg_conf(){
         # Bus ID from nvidia-smi is in hexadecimal format, should be converted to decimal
         # format which Xorg understands, required because nvidia-xconfig doesn't work as intended in
         # a container
-        HEX_ID=$(sudo nvidia-smi --query-gpu=pci.bus_id --id="$GPU_SELECT" --format=csv |sed -n 2p)
+        HEX_ID=$(nvidia-smi --query-gpu=pci.bus_id --id="$GPU_SELECT" --format=csv |sed -n 2p)
         IFS=":." ARR_ID=($HEX_ID)
         unset IFS
         BUS_ID=PCI:$((16#${ARR_ID[1]})):$((16#${ARR_ID[2]})):$((16#${ARR_ID[3]}))
@@ -123,7 +123,7 @@ create_xorg_conf(){
         export MODELINE=$(cvt -r "${SIZEW}" "${SIZEH}" "${REFRESH}" | sed -n 2p)
 
         # Generate /etc/X11/xorg.conf with nvidia-xconfig
-        sudo nvidia-xconfig --virtual="${SIZEW}x${SIZEH}" --depth="$CDEPTH" --mode=$(echo "$MODELINE" | awk '{print $2}' | tr -d '"') \
+        nvidia-xconfig --virtual="${SIZEW}x${SIZEH}" --depth="$CDEPTH" --mode=$(echo "$MODELINE" | awk '{print $2}' | tr -d '"') \
                 --allow-empty-initial-configuration \
                 --no-probe-all-gpus \
                 --busid="$BUS_ID" \
@@ -134,10 +134,10 @@ create_xorg_conf(){
 
         # Guarantee that the X server starts without a monitor by adding more options to
         # the configuration
-        sudo sed -i '/Driver\s\+"nvidia"/a\    Option         "ModeValidation" "NoMaxPClkCheck, NoEdidMaxPClkCheck, NoMaxSizeCheck, NoHorizSyncCheck, NoVertRefreshCheck, NoVirtualSizeCheck, NoExtendedGpuCapabilitiesCheck, NoTotalSizeCheck, NoDualLinkDVICheck, NoDisplayPortBandwidthCheck, AllowNon3DVisionModes, AllowNonHDMI3DModes, AllowNonEdidModes, NoEdidHDMI2Check, AllowDpInterlaced"\n    Option         "HardDPMS" "False"' /etc/X11/xorg.conf
+        sed -i '/Driver\s\+"nvidia"/a\    Option         "ModeValidation" "NoMaxPClkCheck, NoEdidMaxPClkCheck, NoMaxSizeCheck, NoHorizSyncCheck, NoVertRefreshCheck, NoVirtualSizeCheck, NoExtendedGpuCapabilitiesCheck, NoTotalSizeCheck, NoDualLinkDVICheck, NoDisplayPortBandwidthCheck, AllowNon3DVisionModes, AllowNonHDMI3DModes, AllowNonEdidModes, NoEdidHDMI2Check, AllowDpInterlaced"\n    Option         "HardDPMS" "False"' /etc/X11/xorg.conf
 
         # Add custom generated modeline to the configuration
-        sudo sed -i '/Section\s\+"Monitor"/a\    '"$MODELINE" /etc/X11/xorg.conf
+        sed -i '/Section\s\+"Monitor"/a\    '"$MODELINE" /etc/X11/xorg.conf
 }
 
 start_app(){
@@ -180,7 +180,7 @@ start_app(){
         # Start an x11vnc session that brodcasts the contents our X session
         tmux new-session -d -s "x11vnc"
         tmux send-keys -t "x11vnc" "export DISPLAY=:0 && \
-        sudo x11vnc -display ${DISPLAY} \
+        x11vnc -display ${DISPLAY} \
         -shared \
         -loop \
         -repeat \
