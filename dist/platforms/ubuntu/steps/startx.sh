@@ -27,7 +27,8 @@ export CDEPTH=24
 export VIDEO_PORT=DFP
 export PASSWD=mypasswd
 
-
+apt-get update
+apt-get install -y tmux xorg xinit x11vnc xterm icewm dbus-x11 kmod xserver-xorg-core
 init(){
         # Start DBus without systemd
         /etc/init.d/dbus start
@@ -190,14 +191,6 @@ start_app(){
         -xrandr resize \
         -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" \
         -rfbport 5900 ${NOVNC_VIEWONLY}" ENTER
-
-        # Start the no-vnc session that exposes x11vnc over websocket
-        tmux new-session -d -s "novnc"
-        tmux send-keys -t "novnc" "export DISPLAY=:0 && \
-        /opt/noVNC/utils/novnc_proxy \
-        --vnc localhost:5900 \
-        --listen 8080 \
-        --heartbeat 10" ENTER
 
         # Start the desktop session
         tmux new-session -d -s "app"
