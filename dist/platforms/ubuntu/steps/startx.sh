@@ -28,7 +28,7 @@ export VIDEO_PORT=DFP
 export PASSWD=mypasswd
 
 apt-get update
-apt-get install -y tmux xorg xinit x11vnc xterm icewm dbus-x11 kmod xserver-xorg-core
+apt-get install -y tmux xorg xinit x11vnc xterm icewm dbus-x11 kmod xserver-xorg-core pkg-config
 init(){
         # Start DBus without systemd
         /etc/init.d/dbus start
