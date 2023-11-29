@@ -46,6 +46,7 @@ class Docker {
       dockerWorkspacePath,
       dockerCpuLimit,
       dockerMemoryLimit,
+      nvidiaGpus,
     } = parameters;
 
     const githubHome = path.join(runnerTempPath, '_github_home');
@@ -57,6 +58,7 @@ class Docker {
     return `docker run \
             --workdir ${dockerWorkspacePath} \
             --rm \
+            ${nvidiaGpus ? `--gpus all` : ''} \
             ${ImageEnvironmentFactory.getEnvVarString(parameters, additionalVariables)} \
             --env GITHUB_WORKSPACE=${dockerWorkspacePath} \
             --env GIT_CONFIG_EXTENSIONS \
@@ -94,11 +96,13 @@ class Docker {
       dockerCpuLimit,
       dockerMemoryLimit,
       dockerIsolationMode,
+      nvidiaGpus,
     } = parameters;
 
     return `docker run \
             --workdir c:${dockerWorkspacePath} \
             --rm \
+            ${nvidiaGpus ? `--gpus all"` : ''} \
             ${ImageEnvironmentFactory.getEnvVarString(parameters)} \
             --env GITHUB_WORKSPACE=c:${dockerWorkspacePath} \
             ${gitPrivateToken ? `--env GIT_PRIVATE_TOKEN="${gitPrivateToken}"` : ''} \

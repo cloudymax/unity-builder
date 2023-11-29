@@ -235,6 +235,10 @@ class Input {
     return Input.getInput('dockerCpuLimit') || os.cpus().length.toString();
   }
 
+  static get nvidiaGpus(): string {
+    return Input.getInput('nvidiaGpus') || '';
+  }
+
   static get dockerMemoryLimit(): string {
     const bytesInMegabyte = 1024 * 1024;
 

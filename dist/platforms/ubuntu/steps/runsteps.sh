@@ -12,6 +12,7 @@ if [[ $UNITY_EXIT_CODE -ne 0 ]]; then
   exit $UNITY_EXIT_CODE
 fi
 
+source /steps/startxapps.sh
 source /steps/build.sh
 source /steps/return_license.sh
 

@@ -13,6 +13,7 @@ export const mockGetFromUser = jest.fn().mockResolvedValue({
   sshAgent: '',
   chownFilesTo: '',
   gitPrivateToken: '',
+  nvidiaGpus: '',
 });
 
 export default {

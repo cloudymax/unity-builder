@@ -253,6 +253,10 @@ inputs:
     description:
       'The path to mount the workspace inside the docker container. For windows, leave out the drive letter. For example
       c:/github/workspace should be defined as /github/workspace'
+  nvidiaGpus:
+    default: ''
+    required: false
+    description: 'Specify Nvidia GPU devices to pass to the container'
 
 outputs:
   volume:
