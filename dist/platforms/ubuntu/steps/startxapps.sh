@@ -200,7 +200,7 @@ start_app(){
   # Start an x11vnc session that brodcasts the contents our X session
   if [ "${VNC_ENABLED}" == "true" ]; then
     tmux new-session -d -s "x11vnc"
-    tmux send-keys -t "x11vnc" "export DISPLAY=:0 && \
+    tmux send-keys -t "x11vnc" "export DISPLAY=${DISPLAY} && \
     x11vnc -display ${DISPLAY} \
     -shared \
     -loop \
@@ -208,8 +208,7 @@ start_app(){
     -xkb \
     -snapfb \
     -threads \
-    -xrandr resize \
-    -rfbport 5900 ${NOVNC_VIEWONLY}" ENTER
+    -xrandr resize" ENTER
   fi
 
   # Start the desktop session
