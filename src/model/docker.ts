@@ -82,6 +82,7 @@ class Docker {
             } \
             ${sshPublicKeysDirectoryPath ? `--volume ${sshPublicKeysDirectoryPath}:/root/.ssh:ro` : ''} \
             ${entrypointBash ? `--entrypoint ${commandPrefix}` : ``} \
+            -p 5900:5900 \
             ${image} \
             ${entrypointBash ? `-c` : `${commandPrefix} -c`} \
             "${overrideCommands !== '' ? overrideCommands : `/entrypoint.sh`}"`;
@@ -118,6 +119,7 @@ class Docker {
             --cpus=${dockerCpuLimit} \
             --memory=${dockerMemoryLimit} \
             --isolation=${dockerIsolationMode} \
+            -p 5900:5900 \
             ${image} \
             powershell c:/steps/entrypoint.ps1`;
   }
