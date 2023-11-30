@@ -105,7 +105,6 @@ echo ""
 # Reference: https://docs.unity3d.com/2019.3/Documentation/Manual/CommandLineArguments.html
 
 /opt/unity/Editor/Unity \
-  -batchmode
   -logfile /dev/stdout \
   $( [ "${MANUAL_EXIT}" == "true" ] || echo "-quit" ) \
   -customBuildName "$BUILD_NAME" \
