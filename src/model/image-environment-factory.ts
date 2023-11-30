@@ -78,6 +78,9 @@ class ImageEnvironmentFactory {
       { name: 'RUNNER_TOOL_CACHE', value: process.env.RUNNER_TOOL_CACHE },
       { name: 'RUNNER_TEMP', value: process.env.RUNNER_TEMP },
       { name: 'RUNNER_WORKSPACE', value: process.env.RUNNER_WORKSPACE },
+      { name: 'DISPLAY', value: process.env.DISPLAY },
+      { name: 'VNC_ENABLED', value: process.env.VNC_ENABLED },
+      { name: 'RECORD_SCREEN', value: process.env.RECORD_SCREEN },
     ];
     if (parameters.providerStrategy === 'local-docker') {
       for (const element of additionalVariables) {
